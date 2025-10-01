@@ -8,13 +8,8 @@ jobs:
       - name: List Files Before Checkout
         run: ls -la
 
-      - name: Checkout Repository Manually
-        run: |
-          git init
-          git remote add origin "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}
-          @github.com/$GITHUB_REPOSITORY.git"
-          git fetch origin
-          git checkout main
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: List Files After Checkout
         run: ls -la
