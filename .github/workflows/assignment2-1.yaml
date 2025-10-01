@@ -1,0 +1,77 @@
+name: Multi-OS System Info
+
+on:
+  push:
+
+jobs:
+  ubuntu_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Print system information
+        run: |
+          echo "Running on Ubuntu"
+          uname -a
+          lsb_release -a || true
+
+      - name: Capture Git info
+        run: |
+          echo "Commit SHA: $GITHUB_SHA" > info.txt
+          echo "Repository: $GITHUB_REPOSITORY" >> info.txt
+          echo "Workspace Path: $GITHUB_WORKSPACE" >> info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-info
+          path: info.txt
+
+  macos_job:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Print system information
+        run: |
+          echo "Running on macOS"
+          sw_vers
+          uname -a
+
+      - name: Capture Git info
+        run: |
+          echo "Commit SHA: $GITHUB_SHA" > info.txt
+          echo "Repository: $GITHUB_REPOSITORY" >> info.txt
+          echo "Workspace Path: $GITHUB_WORKSPACE" >> info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-info
+          path: info.txt
+
+  windows_job:
+    runs-on: windows-latest
+    if: always()  # Ensures this job runs even if Ubuntu or macOS jobs fail
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Print system information
+        run: |
+          echo "Running on Windows"
+          systeminfo
+
+      - name: Capture Git info
+        run: |
+          echo Commit SHA: %GITHUB_SHA% > info.txt
+          echo Repository: %GITHUB_REPOSITORY% >> info.txt
+          echo Workspace Path: %GITHUB_WORKSPACE% >> info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-info
+          path: info.txt
