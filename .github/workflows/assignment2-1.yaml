@@ -16,6 +16,21 @@ jobs:
           uname -a
           lsb_release -a || true
 
+      # Conditional step: only runs on main branch
+      - name: Main branch only step
+        if: github.ref == 'refs/heads/main'
+        run: echo "This runs only on the main branch"
+
+      # Conditional step: only runs if previous step fails
+      - name: Run if previous step fails
+        if: failure()
+        run: echo "The previous step failed!"
+
+      # Conditional step: always runs
+      - name: Always runs step
+        if: always()
+        run: echo "This step always runs regardless of previous step outcome"
+
       - name: Capture Git info
         run: |
           echo "Commit SHA: $GITHUB_SHA" > info.txt
@@ -40,6 +55,19 @@ jobs:
           sw_vers
           uname -a
 
+      # Conditional steps
+      - name: Main branch only step
+        if: github.ref == 'refs/heads/main'
+        run: echo "This runs only on the main branch"
+
+      - name: Run if previous step fails
+        if: failure()
+        run: echo "The previous step failed!"
+
+      - name: Always runs step
+        if: always()
+        run: echo "This step always runs regardless of previous step outcome"
+
       - name: Capture Git info
         run: |
           echo "Commit SHA: $GITHUB_SHA" > info.txt
@@ -54,7 +82,7 @@ jobs:
 
   windows_job:
     runs-on: windows-latest
-    if: always()  # Ensures this job runs even if Ubuntu or macOS jobs fail
+    if: always()  # Windows always runs even if Ubuntu/macOS fails
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -63,6 +91,19 @@ jobs:
         run: |
           echo "Running on Windows"
           systeminfo
+
+      # Conditional steps
+      - name: Main branch only step
+        if: github.ref == 'refs/heads/main'
+        run: echo "This runs only on the main branch"
+
+      - name: Run if previous step fails
+        if: failure()
+        run: echo "The previous step failed!"
+
+      - name: Always runs step
+        if: always()
+        run: echo "This step always runs regardless of previous step outcome"
 
       - name: Capture Git info
         run: |
