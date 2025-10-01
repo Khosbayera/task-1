@@ -23,7 +23,7 @@ jobs:
           echo "Workspace Path: $GITHUB_WORKSPACE" >> info.txt
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ubuntu-info
           path: info.txt
@@ -47,7 +47,7 @@ jobs:
           echo "Workspace Path: $GITHUB_WORKSPACE" >> info.txt
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-info
           path: info.txt
@@ -71,7 +71,7 @@ jobs:
           echo Workspace Path: %GITHUB_WORKSPACE% >> info.txt
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-info
           path: info.txt
