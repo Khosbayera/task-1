@@ -2,7 +2,7 @@ name: Working Dirs and Shells
 on: [push]
 defaults:
     run:
-        working-directory: /scripts
+        working-directory: /home/ubuntu/
         shell: bash
 jobs:
     display-wd-info:
@@ -40,4 +40,4 @@ jobs:
                   import platform
                   print(platform.system())
                   print(platform.release())
-                  print(platform.version())
+                  print(platform.version())git add .github/workflows/workflow-demo-3.yaml
