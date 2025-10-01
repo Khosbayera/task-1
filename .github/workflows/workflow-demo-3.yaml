@@ -2,7 +2,7 @@ name: Working Dirs and Shells
 on: [push]
 defaults:
     run:
-        working-directory: /home/ubuntu/
+        # working-directory: /home/scripts
         shell: bash
 jobs:
     display-wd-info:
@@ -30,14 +30,14 @@ jobs:
               run: |
                   Get-Location
                   dir
-                  echo $GITHUB_SHA
-                  echo $GITHUB_REF
-                  echo $GITHUB_REPOSITORY
-                  echo $GITHUB_WORKSPACE
+                  echo $env:GITHUB_SHA
+                  echo $env:GITHUB_REF
+                  echo $env:GITHUB_REPOSITORY
+                  echo $env:GITHUB_WORKSPACE
             - name: Pyhon Shell
               shell: python
               run: |
                   import platform
                   print(platform.system())
                   print(platform.release())
-                  print(platform.version())git add .github/workflows/workflow-demo-3.yaml
+                  print(platform.version())
