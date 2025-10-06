@@ -1,4 +1,0 @@
-name: State Issues and PRs
-on:
-    schedule:
-        -cron: '
