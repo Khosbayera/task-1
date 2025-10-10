@@ -14,13 +14,13 @@ jobs:
 
       - name: Call reusable workflow - first message
         id: first
-        uses: ./.github/workflows/reusable-workflow.yml
+        uses: ./.github/workflows/reusable-workflow.yml@main
         with:
           message: "Hello from first call"
 
       - name: Call reusable workflow - second message
         id: second
-        uses: ./.github/workflows/reusable-workflow.yml
+        uses: ./.github/workflows/reusable-workflow.yml@main
         with:
           message: "Hello from second call"
 
