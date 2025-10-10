@@ -1,0 +1,21 @@
+name: Verification After Success
+
+on:
+  workflow_run:
+    workflows: ["Main Workflow"]
+    types:
+      - completed
+
+jobs:
+  run-verification:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Run Verification Script
+        run: |
+          chmod +x ./scripts/verify.sh
+          ./scripts/verify.sh
