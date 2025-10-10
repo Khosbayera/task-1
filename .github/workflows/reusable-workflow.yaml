@@ -1,26 +1,81 @@
-name: Reusable Workflow
+name: Reusable Environment Printer
 
 on:
   workflow_call:
     inputs:
       message:
+        description: 'Custom message to echo'
         required: true
         type: string
+      log_level:
+        description: 'Log level for output'
+        required: false
+        type: string
+        default: 'info'
+    outputs:
+      echoed_message:
+        description: 'The message that was echoed'
+        value: ${{ jobs.print-environment.outputs.output_message }}
+      timestamp:
+        description: 'Timestamp when the workflow ran'
+        value: ${{ jobs.print-environment.outputs.run_timestamp }}
+      runner_os:
+        description: 'Operating system of the runner'
+        value: ${{ jobs.print-environment.outputs.os_info }}
 
 jobs:
-  print-info:
+  print-environment:
     runs-on: ubuntu-latest
     outputs:
-      echoed-message: ${{ steps.echo-step.outputs.echoed }}
+      output_message: ${{ steps.echo-step.outputs.message }}
+      run_timestamp: ${{ steps.env-details.outputs.timestamp }}
+      os_info: ${{ steps.env-details.outputs.os }}
+    
     steps:
-      - name: Print environment info
+      - name: Print Environment Details
+        id: env-details
         run: |
+          echo "=== Environment Details ==="
           echo "Runner OS: $RUNNER_OS"
-          echo "Runner name: $RUNNER_NAME"
-          echo "GitHub workspace: $GITHUB_WORKSPACE"
+          echo "Runner Architecture: $RUNNER_ARCH"
+          echo "Runner Name: $RUNNER_NAME"
+          echo "GitHub Workspace: $GITHUB_WORKSPACE"
+          echo "GitHub Repository: $GITHUB_REPOSITORY"
+          echo "GitHub Ref: $GITHUB_REF"
+          echo "GitHub SHA: $GITHUB_SHA"
+          echo "GitHub Actor: $GITHUB_ACTOR"
+          echo "GitHub Workflow: $GITHUB_WORKFLOW"
+          echo "GitHub Run ID: $GITHUB_RUN_ID"
+          echo "GitHub Run Number: $GITHUB_RUN_NUMBER"
+          echo ""
+          echo "=== System Information ==="
+          echo "Hostname: $(hostname)"
+          echo "Kernel: $(uname -r)"
+          echo "CPU Info: $(nproc) cores"
+          echo "Memory: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo ""
+          echo "=== Timestamp ==="
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          echo "Current Time: $TIMESTAMP"
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "os=$RUNNER_OS" >> $GITHUB_OUTPUT
       
-      - name: Echo input message
+      - name: Echo Input Parameter
         id: echo-step
         run: |
-          echo "You passed: ${{ inputs.message }}"
-          echo "echoed=${{ inputs.message }}" >> $GITHUB_OUTPUT
+          echo "=== Input Parameter ==="
+          echo "Log Level: ${{ inputs.log_level }}"
+          echo "Message: ${{ inputs.message }}"
+          echo ""
+          echo "=== Echoing Message ==="
+          echo "${{ inputs.message }}"
+          echo "message=${{ inputs.message }}" >> $GITHUB_OUTPUT
+      
+      - name: Create Environment Summary
+        run: |
+          echo "## Environment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Message**: ${{ inputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Log Level**: ${{ inputs.log_level }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner OS**: $RUNNER_OS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
