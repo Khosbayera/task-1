@@ -1,0 +1,32 @@
+name: Conditional Steps
+on:
+  push:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Intentional fail (demo)
+        id: fail-step
+        continue-on-error: true
+        run: |
+          echo "This step will fail to demonstrate conditional steps"
+          exit 1
+
+      - name: Run only on main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "This runs only on the main branch"
+
+      - name: Run if previous step failed
+        if: failure()
+        run: |
+          echo "The previous step failed — running failure handler"
+
+      - name: Always run cleanup
+        if: always()
+        run: |
+          echo "This always runs regardless of prior outcomes"
