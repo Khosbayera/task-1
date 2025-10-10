@@ -1,0 +1,40 @@
+name: Daily Repository Check
+on:
+  schedule:
+    # Run at 00:00 UTC daily
+    - cron: '0 0 * * *'
+  # Allow manual dispatch for testing
+  workflow_dispatch:
+
+jobs:
+  daily-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate repository status
+        run: |
+          # Create or append to the log file
+          echo "=== Repository Check $(date -u '+%Y-%m-%d %H:%M:%S UTC') ===" >> repo-status.log
+          echo "Current branch: $(git branch --show-current)" >> repo-status.log
+          echo "Latest commit: $(git log -1 --format='%h - %s (%cr)')" >> repo-status.log
+          echo "" >> repo-status.log
+          
+          echo "File listing:" >> repo-status.log
+          find . -type f -not -path './.git/*' | sort >> repo-status.log
+          
+          echo "" >> repo-status.log
+          echo "File counts by type:" >> repo-status.log
+          find . -type f -not -path './.git/*' -exec file {} \; | awk -F: '{print $2}' | sort | uniq -c | sort -rn >> repo-status.log
+          
+          echo "" >> repo-status.log
+          echo "----------------------------------------" >> repo-status.log
+
+      - name: Upload status log
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-status-log
+          path: repo-status.log
+          # Keep logs from previous runs
+          retention-days: 90
