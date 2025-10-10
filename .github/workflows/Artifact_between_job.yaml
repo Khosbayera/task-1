@@ -1,0 +1,51 @@
+name: Artifact Pass Between Jobs
+on:
+  push:
+
+jobs:
+  producer:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: note-artifact
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create note file
+        run: |
+          echo "This is an artifact created by the producer job." > note.txt
+          echo "Produced by: ${{ github.actor }}" >> note.txt
+
+      - name: Upload note artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: note-artifact
+          path: note.txt
+
+  consumer:
+    needs: producer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download note artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: note-artifact
+          path: downloaded
+
+      - name: Show original contents
+        run: |
+          echo "--- original ---"
+          cat downloaded/note.txt
+
+      - name: Append consumer info
+        run: |
+          echo "" >> downloaded/note.txt
+          echo "Appended by consumer on $(date)" >> downloaded/note.txt
+          echo "Runner: $RUNNER_OS, $RUNNER_TEMP" >> downloaded/note.txt
+          cat downloaded/note.txt > updated-note.txt
+
+      - name: Upload updated artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-note-artifact
+          path: updated-note.txt
