@@ -1,0 +1,68 @@
+name: Multi-Event Handler
+on:
+  push:
+  pull_request:
+  issues:
+
+jobs:
+  on-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Echo push context
+        run: |
+          echo "Event: ${{ github.event_name }}" > push-details.txt
+          echo "Ref: ${{ github.ref }}" >> push-details.txt
+          echo "SHA: ${{ github.sha }}" >> push-details.txt
+          echo "Actor: ${{ github.actor }}" >> push-details.txt
+
+      - name: Upload push artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: push-details
+          path: push-details.txt
+
+  on-pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Echo pull_request context
+        run: |
+          echo "Event: ${{ github.event_name }}" > pr-details.txt
+          echo "Action: ${{ github.event.action }}" >> pr-details.txt
+          echo "PR number: ${{ github.event.pull_request.number }}" >> pr-details.txt
+          echo "PR head ref: ${{ github.event.pull_request.head.ref }}" >> pr-details.txt
+          echo "PR base ref: ${{ github.event.pull_request.base.ref }}" >> pr-details.txt
+
+      - name: Upload PR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-details
+          path: pr-details.txt
+
+  on-issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Echo issues context
+        run: |
+          echo "Event: ${{ github.event_name }}" > issue-details.txt
+          echo "Action: ${{ github.event.action }}" >> issue-details.txt
+          echo "Issue number: ${{ github.event.issue.number }}" >> issue-details.txt
+          echo "Issue title: ${{ github.event.issue.title }}" >> issue-details.txt
+          echo "Issue body: ${{ github.event.issue.body }}" >> issue-details.txt
+
+      - name: Upload issue artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-details
+          path: issue-details.txt
