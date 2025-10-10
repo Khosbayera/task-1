@@ -1,0 +1,31 @@
+name: Caller Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-reusable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Call reusable workflow - first message
+        id: first
+        uses: ./.github/workflows/reusable-workflow.yml
+        with:
+          message: "Hello from first call"
+
+      - name: Call reusable workflow - second message
+        id: second
+        uses: ./.github/workflows/reusable-workflow.yml
+        with:
+          message: "Hello from second call"
+
+      - name: Consolidate outputs
+        run: |
+          echo "First output: ${{ steps.first.outputs.echoed-message }}" >> consolidated.log
+          echo "Second output: ${{ steps.second.outputs.echoed-message }}" >> consolidated.log
+          cat consolidated.log

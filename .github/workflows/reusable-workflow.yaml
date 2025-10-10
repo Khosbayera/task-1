@@ -1,0 +1,26 @@
+name: Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+
+jobs:
+  print-info:
+    runs-on: ubuntu-latest
+    outputs:
+      echoed-message: ${{ steps.echo-step.outputs.echoed }}
+    steps:
+      - name: Print environment info
+        run: |
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner name: $RUNNER_NAME"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+      
+      - name: Echo input message
+        id: echo-step
+        run: |
+          echo "You passed: ${{ inputs.message }}"
+          echo "echoed=${{ inputs.message }}" >> $GITHUB_OUTPUT
