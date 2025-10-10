@@ -1,24 +1,85 @@
-name: Workflow Demo 1
-on: [push]
+name: Cross-Platform Workflow
+permissions:
+  contents: read
+on:
+  push:
 
 jobs:
-  run-shell-commands:
+  ubuntu-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Run a String
-        run: echo Hello, world!
-      - name: Run a multi-line script
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: System information
         run: |
-          node -v
-          npm -v
-  parallel-job-macos:
+          echo "OS: Ubuntu"
+          uname -a
+          lsb_release -a
+          
+      - name: Capture repository info
+        run: |
+          echo "Commit SHA: ${{ github.sha }}" > repo-info.txt
+          echo "Repository: ${{ github.repository }}" >> repo-info.txt
+          echo "Workspace: ${{ github.workspace }}" >> repo-info.txt
+          
+      - name: Upload Ubuntu artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-info
+          path: repo-info.txt
+
+  macos-job:
     runs-on: macos-latest
     steps:
-      - name: view SW Version
-        run: sw_vers
-  dependent-job:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: System information
+        run: |
+          echo "OS: macOS"
+          uname -a
+          sw_vers
+          
+      - name: Capture repository info
+        run: |
+          echo "Commit SHA: ${{ github.sha }}" > repo-info.txt
+          echo "Repository: ${{ github.repository }}" >> repo-info.txt
+          echo "Workspace: ${{ github.workspace }}" >> repo-info.txt
+          
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-info
+          path: repo-info.txt
+
+  windows-job:
+    needs: ubuntu-job
+    if: always()
     runs-on: windows-latest
-    needs: [run-shell-commands]
     steps:
-      - name: Echo a string
-        run: Write-Output "Windows String"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: System information
+        run: |
+          echo "OS: Windows"
+          systeminfo
+          
+      - name: Capture repository info
+        run: |
+          echo "Commit SHA: ${{ github.sha }}" > repo-info.txt
+          echo "Repository: ${{ github.repository }}" >> repo-info.txt
+          echo "Workspace: ${{ github.workspace }}" >> repo-info.txt
+          
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-info
+          path: repo-info.txt
