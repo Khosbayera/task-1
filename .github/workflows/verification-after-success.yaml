@@ -2,7 +2,7 @@ name: Verification After Success
 
 on:
   workflow_run:
-    workflows: ["Main Workflow"]
+    workflows: ["Main Workflow"]  # replace with the workflow name to depend on
     types:
       - completed
 
