@@ -1,0 +1,75 @@
+name: Dependency Caching Demo
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Cache dependencies
+      - name: Cache node modules
+        uses: actions/cache@v3
+        id: cache-nodemodules
+        with:
+          # Cache the entire node_modules directory
+          path: |
+            node_modules
+          # Cache key is based on package-lock.json
+          # which changes only when dependencies change
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Create package.json if not exists
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "Creating package.json..."
+            echo '{
+              "name": "cicd-demo",
+              "version": "1.0.0",
+              "description": "Demo project for GitHub Actions caching",
+              "main": "index.js",
+              "scripts": {
+                "test": "echo \"Error: no test specified\" && exit 1"
+              },
+              "dependencies": {
+                "express": "^4.18.2",
+                "lodash": "^4.17.21"
+              }
+            }' > package.json
+          fi
+
+      - name: Install Dependencies
+        # Only run npm install if cache wasn't restored
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: |
+          echo "Cache miss - installing dependencies..."
+          npm install
+
+      - name: Log Cache Status
+        run: |
+          if [ "${{ steps.cache-nodemodules.outputs.cache-hit }}" == 'true' ]; then
+            echo "Cache was successfully restored!"
+            echo "Cache key used: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}"
+          else
+            echo "Cache was not found - dependencies were installed from npm"
+          fi
+          
+          echo "Node modules directory size:"
+          du -sh node_modules
+
+      - name: Test Node Setup
+        run: |
+          node -v
+          npm -v
+          # List installed packages to verify setup
+          npm list --depth=0
