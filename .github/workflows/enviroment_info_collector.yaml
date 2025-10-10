@@ -1,0 +1,50 @@
+name: Environment Info Collector
+on: 
+  workflow_dispatch:
+    inputs:
+      custom_message:
+        description: 'Custom message to pass to reusable workflow'
+        required: true
+        default: 'Hello from caller workflow!'
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+
+jobs:
+  workflow-1:
+    uses: ./.github/workflows/reusable-workflow.yaml
+    with:
+      message: "First run with message: ${{ inputs.custom_message || 'Scheduled run' }}"
+
+  workflow-2:
+    uses: ./.github/workflows/reusable-workflow.yaml
+    with:
+      message: "Second run with different input"
+
+  collect-results:
+    needs: [workflow-1, workflow-2]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Consolidated Log
+        run: |
+          # Create the log file with a header
+          echo "=== Environment Information Collection ===" > env-info.log
+          echo "Collection Date: $(date -u)" >> env-info.log
+          echo "" >> env-info.log
+          
+          echo "=== First Workflow Run ===" >> env-info.log
+          echo "Timestamp: ${{ needs.workflow-1.outputs.timestamp }}" >> env-info.log
+          echo "System Info:" >> env-info.log
+          echo "${{ needs.workflow-1.outputs.system-info }}" >> env-info.log
+          echo "" >> env-info.log
+          
+          echo "=== Second Workflow Run ===" >> env-info.log
+          echo "Timestamp: ${{ needs.workflow-2.outputs.timestamp }}" >> env-info.log
+          echo "System Info:" >> env-info.log
+          echo "${{ needs.workflow-2.outputs.system-info }}" >> env-info.log
+          
+      - name: Upload Log File
+        uses: actions/upload-artifact@v4
+        with:
+          name: environment-info-log
+          path: env-info.log        
+          retention-days: 7
