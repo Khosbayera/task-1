@@ -1,0 +1,19 @@
+name: Triggered Verification Workflow
+
+on:
+  workflow_run:
+    workflows: ["Marketplace Action with Outputs"]
+    types:
+      - completed
+
+jobs:
+  verify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run verification script
+        run: |
+          echo "Running verification after successful workflow..."
+          echo "Verification completed successfully!"
