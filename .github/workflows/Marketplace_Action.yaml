@@ -1,4 +1,4 @@
-\name: Marketplace Action Outputs Demo
+name: Marketplace Action Outputs Demo
 on:
   push:
 
