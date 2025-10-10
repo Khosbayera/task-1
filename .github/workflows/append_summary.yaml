@@ -1,0 +1,29 @@
+name: Marketplace Action Outputs Example
+
+on: [push]
+
+jobs:
+  use-marketplace-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run GitHub Script
+        id: script_step
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `Workflow run by ${context.actor} on ${new Date().toISOString()}`;
+            core.setOutput("custom_message", message);
+
+      - name: Append output to summary file
+        run: |
+          echo "Action output:" >> summary.txt
+          echo "${{ steps.script_step.outputs.custom_message }}" >> summary.txt
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-summary
+          path: summary.txt
