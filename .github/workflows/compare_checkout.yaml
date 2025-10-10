@@ -1,0 +1,52 @@
+name: Compare Checkout Methods
+on:
+  push:
+
+jobs:
+  compare-checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare workspace
+        run: |
+          mkdir -p manual-clone
+          mkdir -p checkout-clone
+          ls -la > before-listing.txt
+
+      - name: Manual git clone
+        env:
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init manual-clone
+          cd manual-clone
+          git remote add origin https://x-access-token:${TOKEN}@github.com/${REPO}.git
+          git fetch --depth=1 origin ${{ github.ref }}
+          git checkout FETCH_HEAD
+          cd ..
+          ls -la manual-clone > manual-listing.txt
+
+      - name: Checkout using actions/checkout
+        uses: actions/checkout@v3
+
+      - name: List files after actions/checkout
+        run: |
+          ls -la > checkout-listing.txt
+
+      - name: Compare listings and write diff
+        run: |
+          echo "--- before-listing.txt" > checkout-diff.log
+          echo "" >> checkout-diff.log
+          echo "--- manual-listing.txt" >> checkout-diff.log
+          diff -u before-listing.txt manual-listing.txt >> checkout-diff.log || true
+          echo "" >> checkout-diff.log
+          echo "--- checkout-listing.txt" >> checkout-diff.log
+          diff -u before-listing.txt checkout-listing.txt >> checkout-diff.log || true
+          echo "" >> checkout-diff.log
+          echo "--- manual vs checkout" >> checkout-diff.log
+          diff -u manual-listing.txt checkout-listing.txt >> checkout-diff.log || true
+
+      - name: Upload diff log
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkout-diff-log
+          path: checkout-diff.log
