@@ -1,0 +1,19 @@
+name: Matrix Strategy
+on: [push]
+
+jobs:
+    node-matrix:
+         continue-on-error: false #applied at step/job level
+         strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest]
+                node-version: [12, 14, 16]
+            fail-fast: false #applied at job level
+            max-parallel: 4 #applied at job level
+        runs-on: ${{ matrix.os }}
+        stepsL:
+            - run: node -v
+            - uses: actions/checkout@v3
+            with:
+                node-version: ${{ matrix.node-version }}
+                - run: node -v
